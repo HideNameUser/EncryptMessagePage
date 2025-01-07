@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密语 SAFE-MSG</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #333;
+            --error-color: #ff4444;
+            --border-color: #ddd;
+            --background-color: #f5f5f5;
+            --container-padding: clamp(1rem, 5vw, 2rem);
+            --border-radius: 8px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: var(--background-color);
+            padding: 1rem;
+            font-size: clamp(14px, 1vw + 10px, 16px);
+            line-height: 1.5;
+        }
+
+        /* Container styles */
+        .container {
+            background: white;
+            padding: var(--container-padding);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: min(90%, 600px);
+        }
+
+        /* Header styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: clamp(1rem, 3vh, 1.5rem);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .title {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            margin: 0;
+            word-break: break-word;
+        }
+
+        .subtitle {
+            color: #666;
+            margin: 0.5rem 0 0 0;
+            font-size: clamp(0.875rem, 2vw, 1rem);
+        }
+
+        /* Input styles */
+        textarea {
+            width: 100%;
+            min-height: clamp(120px, 30vh, 200px);
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            resize: vertical;
+            font-size: inherit;
+            line-height: 1.5;
+        }
+
+        .key-input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: inherit;
+        }
+
+        /* Button styles */
+        .button-container {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: clamp(0.5rem, 2vh, 0.75rem) clamp(1rem, 3vw, 1.5rem);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn {
+            background: white;
+            border: 2px solid var(--primary-color);
+            min-width: 80px;
+        }
+
+        .encrypt-btn {
+            background: var(--primary-color);
+            color: white;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        /* Interactive states */
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        textarea:focus, .key-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* Language switch */
+        .lang-switch {
+            cursor: pointer;
+            padding: 0.5rem;
+            user-select: none;
+            font-size: clamp(0.875rem, 2vw, 1rem);
+            border: 1px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            transition: all 0.2s ease;
+        }
+
+        .lang-switch:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Error message */
+        .error {
+            color: var(--error-color);
+            margin-top: 0.5rem;
+            display: none;
+            font-size: clamp(0.75rem, 2vw, 0.875rem);
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary-color: #fff;
+                --border-color: #444;
+                --background-color: #1a1a1a;
+            }
+            
+            body {
+                color: #fff;
+            }
+            
+            .container {
+                background: #2a2a2a;
+            }
+            
+            .subtitle {
+                color: #aaa;
+            }
+            
+            textarea, .key-input {
+                background: #333;
+                color: #fff;
+            }
+            
+            .copy-btn {
+                background: transparent;
+            }
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 480px) {
+            .button-container {
+                flex-direction: column;
+            }
+
+            .copy-btn, .encrypt-btn {
+                width: 100%;
+                padding: 0.75rem;
+            }
+
+            .header {
+                text-align: center;
+                justify-content: center;
+            }
+
+            .lang-switch {
+                margin: 0 auto;
+            }
+        }
+
+        /* Tablet adjustments */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Touch device optimizations */
+        @media (hover: none) {
+            button:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HTML structure remains the same as previous version -->
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 class="title" data-zh="密语 SAFE-MSG" data-en="SAFE-MSG">密语 SAFE-MSG</h1>
+                <p class="subtitle" data-zh="一个轻量级的加密工具" data-en="A lightweight encryption tool">一个轻量级的加密工具</p>
+            </div>
+            <div class="lang-switch" onclick="toggleLanguage()" data-zh="EN" data-en="中文">EN</div>
+        </div>
+        
+        <textarea id="messageInput" data-zh-placeholder="您的消息" data-en-placeholder="Your message" placeholder="您的消息"></textarea>
+        <input type="text" id="keyInput" class="key-input" 
+               data-zh-placeholder="密钥 (解密时需要)" 
+               data-en-placeholder="Key (required for decryption)" 
+               placeholder="密钥 (解密时需要)">
+        <p id="errorText" class="error" 
+           data-zh="解密失败，请检查密钥是否正确" 
+           data-en="Decryption failed, please check if the key is correct">解密失败，请检查密钥是否正确</p>
+        
+        <div class="button-container">
+            <button class="copy-btn" onclick="copyText()" data-zh="复制" data-en="Copy">复制</button>
+            <button class="encrypt-btn" id="cryptBtn" onclick="handleCrypt()" 
+                    data-zh="加密" data-en="Encrypt" 
+                    data-zh-decrypt="解密" data-en-decrypt="Decrypt">加密</button>
+        </div>
+    </div>
+
+    <!-- JavaScript remains the same as previous version -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        // JavaScript code remains exactly the same as in the previous version
+        const messageInput = document.getElementById('messageInput');
+        const keyInput = document.getElementById('keyInput');
+        const cryptBtn = document.getElementById('cryptBtn');
+        const errorText = document.getElementById('errorText');
+        let currentLang = 'zh';
+        
+        function generateKey() {
+            return CryptoJS.lib.WordArray.random(16).toString();
+        }
+
+        function isEncrypted(text) {
+            try {
+                return /^U2FsdGVkX1.*/.test(text);
+            } catch {
+                return false;
+            }
+        }
+
+        function encrypt(message, key) {
+            return CryptoJS.AES.encrypt(message, key).toString();
+        }
+
+        function decrypt(ciphertext, key) {
+            try {
+                const decrypted = CryptoJS.AES.decrypt(ciphertext, key);
+                const result = decrypted.toString(CryptoJS.enc.Utf8);
+                if (!result) throw new Error('Decryption failed');
+                return result;
+            } catch {
+                return null;
+            }
+        }
+
+        function handleCrypt() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            errorText.style.display = 'none';
+
+            if (isEncrypted(message)) {
+                // 解密模式
+                const key = keyInput.value.trim();
+                if (!key) {
+                    errorText.textContent = currentLang === 'zh' ? 
+                        '请输入解密密钥' : 
+                        'Please enter decryption key';
+                    errorText.style.display = 'block';
+                    return;
+                }
+                const decrypted = decrypt(message, key);
+                if (decrypted) {
+                    messageInput.value = decrypted;
+                    updateCryptBtnText(false);
+                    keyInput.value = '';
+                } else {
+                    errorText.textContent = errorText.getAttribute(`data-${currentLang}`);
+                    errorText.style.display = 'block';
+                }
+            } else {
+                // 加密模式
+                const key = keyInput.value.trim() || generateKey();
+                const encrypted = encrypt(message, key);
+                messageInput.value = encrypted;
+                keyInput.value = key;
+                updateCryptBtnText(true);
+            }
+        }
+
+        function copyText() {
+            messageInput.select();
+            document.execCommand('copy');
+        }
+
+        function updateCryptBtnText(isDecrypt) {
+            const attr = isDecrypt ? 'data-' + currentLang + '-decrypt' : 'data-' + currentLang;
+            cryptBtn.textContent = cryptBtn.getAttribute(attr);
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+            
+            document.querySelectorAll('[data-zh]').forEach(elem => {
+                const isDecryptMode = isEncrypted(messageInput.value.trim());
+                if (elem === cryptBtn) {
+                    updateCryptBtnText(isDecryptMode);
+                } else {
+                    elem.textContent = elem.getAttribute(`data-${currentLang}`);
+                }
+            });
+
+            messageInput.placeholder = messageInput.getAttribute(`data-${currentLang}-placeholder`);
+            keyInput.placeholder = keyInput.getAttribute(`data-${currentLang}-placeholder`);
+        }
+
+        messageInput.addEventListener('input', function() {
+            const message = messageInput.value.trim();
+            updateCryptBtnText(isEncrypted(message));
+            errorText.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
